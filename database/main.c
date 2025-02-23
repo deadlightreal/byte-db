@@ -22,8 +22,8 @@ void PrintSuccessMessage(char* message) {
     printf("\033[1;32m%s\033[0m", message);
 }
 
-void createDatabase() {
-    char* databaseName;
+void createDatabase(Connection* connection) {
+    char* databaseName = connection->tokens[2];
 
     if(databaseName == NULL) {
         printf("Please provide a database name\n");
@@ -45,6 +45,8 @@ void createDatabase() {
         printf("failed to create a database\n");
         return;
     }
+
+    PrintSuccessMessage("Successfully created a new database\n");
 };
 
 void initializeBytedbDirectory() {
@@ -101,6 +103,10 @@ Server CreateTcpServer() {
     return server;
 }
 
+Command commands[] = {
+    {"create database", createDatabase}
+};
+
 void* handleClient(void* arg) {
     Connection* connection = (Connection *)arg;
 
@@ -124,14 +130,22 @@ void* handleClient(void* arg) {
             continue;
         }
 
-        printf("message from server: %s\n", buffer);
+        char buffer_clone[sizeof(buffer)];
+        strncpy(buffer_clone, buffer, strlen(buffer));
 
-        char *token = strtok(buffer, TOKEN_DELIMETERS);
+        char *token = strtok(buffer_clone, TOKEN_DELIMETERS);
 
         for(unsigned int i = 0; token != NULL; i++) {
-            printf("Token: %s\n", token);
+            connection->tokens[i] = token;
         
             token = strtok(NULL, TOKEN_DELIMETERS);
+        }
+
+        for(unsigned int i = 0; i < sizeof(commands) / sizeof(Command); i++) {
+            Command command = commands[i];
+            if(strncmp(command.command, buffer, strlen(command.command)) == 0) {
+                command.function(connection);
+            }
         }
 
         PrintSuccessMessage("Successfully read from client\n");

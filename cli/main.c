@@ -95,7 +95,7 @@ int main() {
         for(uint8_t i = 0; i < sizeof(commands) / sizeof(Command); i++) {
             Command current_command = commands[i];
 
-            if(strncmp(input, current_command.command, sizeof(input)) == 0) {
+            if(strncmp(input, current_command.command, strlen(current_command.command)) == 0) {
                 current_command.function();
 
                 executedCommand = true;

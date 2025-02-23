@@ -17,6 +17,12 @@ typedef struct {
     char** tokens;
 } Connection;
 
+typedef struct {
+    const char* command;
+    void (*function)(Connection*);
+} Command;
+
+
 #define TOKEN_DELIMETERS " "
 #define MAX_TOKENS 500
 #define PORT 10024
