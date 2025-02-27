@@ -15,13 +15,15 @@ typedef struct {
     pthread_t thread;
     int clientfd;
     char** tokens;
+    char* connectedDatabase;
+    struct sockaddr_in client_addr;
+    socklen_t addr_len;
 } Connection;
 
 typedef struct {
     const char* command;
     void (*function)(Connection*);
 } Command;
-
 
 #define TOKEN_DELIMETERS " "
 #define MAX_TOKENS 500
